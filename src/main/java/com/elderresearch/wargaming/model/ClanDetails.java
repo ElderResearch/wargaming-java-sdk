@@ -1,6 +1,7 @@
 package com.elderresearch.wargaming.model;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,4 +26,14 @@ public class ClanDetails extends Clan {
 	private String oldName, oldTag;
 	
 	private Date renamedAt, updatedAt;
+	
+	private List<ClanMember> members;
+	
+	@Data @Accessors(chain = true)
+	public static class ClanMember {
+		private String role, roleI18n;
+		private Date joinedAt;
+		private int accountId;
+		private String accountName;
+	}
 }
