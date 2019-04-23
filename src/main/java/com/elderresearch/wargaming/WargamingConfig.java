@@ -44,6 +44,7 @@ public class WargamingConfig {
 	public enum WargamingOption implements PropertiesKey {
 		WARGAMING_API_URL("https://api.worldoftanks.com/wot/"),
 		WARGAMING_API_KEY,
+		WARGAMING_API_ACCESS_TOKEN,
 		WARGAMING_API_LOG_LEVEL,
 		WARGAMING_API_LOG_VERBOSITY(Verbosity.PAYLOAD_TEXT);
 		

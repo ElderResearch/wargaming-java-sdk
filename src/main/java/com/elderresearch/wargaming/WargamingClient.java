@@ -12,7 +12,6 @@ import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 
 import com.elderresearch.commons.lang.CachedSupplier;
 import com.elderresearch.commons.lang.CachedSupplier.Result;
-import com.elderresearch.commons.lang.LambdaUtils;
 import com.elderresearch.commons.rest.client.RestClient;
 import com.elderresearch.commons.rest.client.WebParam.WebQueryParam;
 import com.elderresearch.wargaming.WargamingConfig.WargamingOption;
@@ -47,12 +46,15 @@ public class WargamingClient extends RestClient {
 		JSON_PROVIDER.setMapper(om);
 	}
 	
-	WargamingClient(Level level, Verbosity verbosity, String baseURL, String apiKey) {
+	WargamingClient(Level level, Verbosity verbosity, String baseURL, String apiKey, String accessToken) {
 		super(builderWithFeatures(new LoggingFeature(log, level, verbosity, LoggingFeature.DEFAULT_MAX_ENTITY_SIZE))
 			.register(JSON_PROVIDER));
 		
 		setBase(baseURL);
-		LambdaUtils.accept(apiKey, $ -> setPerpetualParams(WebQueryParam.of("application_id", $)));
+		setPerpetualParams(
+			WebQueryParam.of("application_id", apiKey),
+			WebQueryParam.of("access_token", accessToken)
+		);
 	}
 	
 	@SuppressWarnings("resource")
@@ -64,11 +66,12 @@ public class WargamingClient extends RestClient {
 			level = Level.FINE;
 		}
 		
-		val verbosity = WargamingOption.WARGAMING_API_LOG_VERBOSITY.getEnum(Verbosity.class);
-		val apiURL    = WargamingOption.WARGAMING_API_URL.get();
-		val apiKey    = WargamingOption.WARGAMING_API_KEY.get();
+		val verbosity   = WargamingOption.WARGAMING_API_LOG_VERBOSITY.getEnum(Verbosity.class);
+		val apiURL      = WargamingOption.WARGAMING_API_URL.get();
+		val apiKey      = WargamingOption.WARGAMING_API_KEY.get();
+		val accessToken = WargamingOption.WARGAMING_API_ACCESS_TOKEN.get(); 
 		
-		return Result.completed(new WargamingClient(level, verbosity, apiURL, apiKey));
+		return Result.completed(new WargamingClient(level, verbosity, apiURL, apiKey, accessToken));
 	});
 
 	static void reset() {
