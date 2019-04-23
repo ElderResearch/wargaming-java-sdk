@@ -17,7 +17,7 @@ public abstract class WargamingResponse<T> {
 	
 	@Getter
 	public static class Meta {
-		private int count, total;
+		private Integer count, total, page, pageTotal;
 	}
 	
 	public static class WithMap<T> extends WargamingResponse<T> {

@@ -3,6 +3,7 @@ package com.elderresearch.wargaming;
 import com.elderresearch.wargaming.WargamingAPI.ClanAPI;
 import com.elderresearch.wargaming.WargamingAPI.ClansAPI;
 import com.elderresearch.wargaming.WargamingAPI.PageParams;
+import com.elderresearch.wargaming.WargamingAPI.VehiclesAPI;
 
 import junit.framework.TestCase;
 
@@ -15,5 +16,9 @@ public class WargamingAPITest extends TestCase {
 	public void testClanDetails() {
 		int id = 1000008386;
 		System.out.println(ClanAPI.get(id).getData().get(String.valueOf(id)));
+	}
+	
+	public void testVehicles() {
+		System.out.println(VehiclesAPI.get(PageParams.of(1, 5)).getData().get("1"));
 	}
 }

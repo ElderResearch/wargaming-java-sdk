@@ -18,6 +18,7 @@ import com.elderresearch.wargaming.WargamingResponse.WithList;
 import com.elderresearch.wargaming.WargamingResponse.WithMap;
 import com.elderresearch.wargaming.model.Clan;
 import com.elderresearch.wargaming.model.ClanDetails;
+import com.elderresearch.wargaming.model.Vehicle;
 
 import lombok.experimental.Accessors;
 import lombok.experimental.UtilityClass;
@@ -64,7 +65,26 @@ public class WargamingAPI {
 		public WithMap<ClanDetails> get(int id, WebParam... params) {
 			return request(id, params).get(WithMap.forType(ClanDetails.class));
 		}
-	}	
+	}
+	
+	@UtilityClass
+	protected class EncyclopediaAPI {
+		private final RecursiveTarget target = target("encyclopedia");
+	}
+	
+	
+	@UtilityClass
+	public class VehiclesAPI {
+		private final RecursiveTarget target = EncyclopediaAPI.target.child("vehicles/");
+		
+		public Invocation.Builder request(WebParam... params) {
+			return client().request(target, params);
+		}
+		
+		public WithMap<Vehicle> get(WebParam... params) {
+			return request(params).get(WithMap.forType(Vehicle.class));
+		}
+	}
 	
 	public void close() {
 		client().close();
