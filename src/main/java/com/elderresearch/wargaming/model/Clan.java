@@ -4,16 +4,16 @@ import java.util.Date;
 import java.util.Map;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 @Data @Accessors(chain = true)
-public class Clan {
+@EqualsAndHashCode(callSuper = true)
+public class Clan extends Tagged {
 	private int clanId;
 	private String color;
 	private Date createdAt;
 	private int membersCount;
-	private String name;
-	private String tag;
 	
 	private Map<String, ClanEmblems> emblems;
 	
