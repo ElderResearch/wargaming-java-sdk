@@ -25,11 +25,11 @@ public abstract class WargamingResponse<T> {
 		private Map<String, T> data;
 		
 		@SafeVarargs
-		public static <T> GenericType<WithMap<T>> forType(Class<T>... c) {
+		public static <T> GenericType<WithMap<T>> forType(Class<T>... t) {
 			return new GenericType<>(new ParameterizedType() {
 				@Override public Type getRawType() { return WithMap.class; }
 				@Override public Type getOwnerType() { return WithMap.class; }
-				@Override public Type[] getActualTypeArguments() { return c; }
+				@Override public Type[] getActualTypeArguments() { return t; }
 			});
 		}
 	}
@@ -39,11 +39,25 @@ public abstract class WargamingResponse<T> {
 		private List<T> data;
 		
 		@SafeVarargs
-		public static <T> GenericType<WithList<T>> forType(Class<T>... c) {
+		public static <T> GenericType<WithList<T>> forType(Class<T>... t) {
 			return new GenericType<>(new ParameterizedType() {
 				@Override public Type getRawType() { return WithList.class; }
 				@Override public Type getOwnerType() { return WithList.class; }
-				@Override public Type[] getActualTypeArguments() { return c; }
+				@Override public Type[] getActualTypeArguments() { return t; }
+			});
+		}
+	}
+	
+	public static class WithMapOfLists<T> extends WargamingResponse<T> {
+		@Getter
+		private Map<String, List<T>> data;
+		
+		@SafeVarargs
+		public static <T> GenericType<WithMapOfLists<T>> forType(Class<T>... t) {
+			return new GenericType<>(new ParameterizedType() {
+				@Override public Type getRawType() { return WithMapOfLists.class; }
+				@Override public Type getOwnerType() { return WithMapOfLists.class; }
+				@Override public Type[] getActualTypeArguments() { return t; }
 			});
 		}
 	}

@@ -16,8 +16,10 @@ import com.elderresearch.commons.rest.client.WebParam.WebParamGroup;
 import com.elderresearch.commons.rest.client.WebParam.WebQueryParam;
 import com.elderresearch.wargaming.WargamingResponse.WithList;
 import com.elderresearch.wargaming.WargamingResponse.WithMap;
+import com.elderresearch.wargaming.WargamingResponse.WithMapOfLists;
 import com.elderresearch.wargaming.model.Clan;
 import com.elderresearch.wargaming.model.ClanDetails;
+import com.elderresearch.wargaming.model.PlayerVehicle;
 import com.elderresearch.wargaming.model.Vehicle;
 
 import lombok.experimental.Accessors;
@@ -81,8 +83,38 @@ public class WargamingAPI {
 			return client().request(target, params);
 		}
 		
+		public Invocation.Builder request(int tankId, WebParam... params) {
+			return request(ArrayUtils.add(params, WebQueryParam.of("tank_id", tankId)));
+		}
+		
 		public WithMap<Vehicle> get(WebParam... params) {
 			return request(params).get(WithMap.forType(Vehicle.class));
+		}
+		
+		public WithMap<Vehicle> get(int tankId, WebParam... params) {
+			return request(tankId, params).get(WithMap.forType(Vehicle.class));
+		}
+	}
+	
+	@UtilityClass
+	public class PlayersAPI {
+		private final RecursiveTarget target = target("account");
+		
+		public Invocation.Builder request(WebParam... params) {
+			return client().request(target, params);
+		}		
+	}
+	
+	@UtilityClass
+	public class PlayerVehiclesAPI {
+		private final RecursiveTarget target = PlayersAPI.target.child("tanks/");
+		
+		public Invocation.Builder request(int accountId, WebParam... params) {
+			return client().request(target, ArrayUtils.add(params, WebQueryParam.of("account_id", accountId)));
+		}
+		
+		public WithMapOfLists<PlayerVehicle> get(int accountId, WebParam... params) {
+			return request(accountId, params).get(WithMapOfLists.forType(PlayerVehicle.class));
 		}
 	}
 	
