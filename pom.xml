@@ -11,13 +11,13 @@
 	<artifactId>eri-wargaming-api</artifactId>
 	<name>ERI Wargaming.net API</name>
 	<description>Java SDK for Wargaming.net API</description>
-	<version>0.0.1</version>
+	<version>0.0.2-SNAPSHOT</version>
 
 	<scm>
 		<developerConnection>scm:git:https://${scm}/eri-api/eri-wargaming-api.git</developerConnection>
 		<connection>scm:git:http://${scm}/eri-api/eri-wargaming-api.git</connection>
 		<url>http://${scm}/summary/eri-api%2Feri-wargaming-api.git</url>
-		<tag>eri-wargaming-api-0.0.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<dependencies>
