@@ -21,6 +21,7 @@ import com.elderresearch.wargaming.WargamingResponse.WithList;
 import com.elderresearch.wargaming.WargamingResponse.WithMap;
 import com.elderresearch.wargaming.WargamingResponse.WithMapOfLists;
 import com.elderresearch.wargaming.model.Clan;
+import com.elderresearch.wargaming.model.ClanBattle;
 import com.elderresearch.wargaming.model.ClanDetails;
 import com.elderresearch.wargaming.model.PlayerVehicle;
 import com.elderresearch.wargaming.model.ProvinceGeo;
@@ -104,7 +105,7 @@ public class WargamingAPI {
 		
 		public Invocation.Builder request(WebParam... params) {
 			return client().request(target, params);
-		}		
+		}
 	}
 	
 	@UtilityClass
@@ -117,6 +118,28 @@ public class WargamingAPI {
 		
 		public WithMapOfLists<PlayerVehicle> get(int accountId, WebParam... params) {
 			return request(accountId, params).get(WithMapOfLists.forType(PlayerVehicle.class));
+		}
+	}
+	
+	@UtilityClass
+	public class GlobalMapAPI {
+		private final RecursiveTarget target = target("globalmap");
+		
+		public Invocation.Builder request(WebParam... params) {
+			return client().request(target, params);
+		}
+	}
+	
+	@UtilityClass
+	public class ClanBattlesAPI {
+		private final RecursiveTarget target = GlobalMapAPI.target.child("clanbattles/");
+		
+		public Invocation.Builder request(int clanId, WebParam... params) {
+			return client().request(target, ArrayUtils.add(params, WebQueryParam.of("clan_id", clanId)));
+		}
+		
+		public WithList<ClanBattle> get(int clanId, WebParam... params) {
+			return request(clanId, params).get(WithList.forType(ClanBattle.class));
 		}
 	}
 	

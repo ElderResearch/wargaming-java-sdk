@@ -1,6 +1,10 @@
 package com.elderresearch.wargaming;
 
+import java.util.concurrent.TimeUnit;
+
+import com.elderresearch.commons.lang.Utilities;
 import com.elderresearch.wargaming.WargamingAPI.ClanAPI;
+import com.elderresearch.wargaming.WargamingAPI.ClanBattlesAPI;
 import com.elderresearch.wargaming.WargamingAPI.ClansAPI;
 import com.elderresearch.wargaming.WargamingAPI.PageParams;
 import com.elderresearch.wargaming.WargamingAPI.ProvinceGeoAPI;
@@ -13,6 +17,7 @@ public class WargamingAPITest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		WargamingOption.WARGAMING_API_KEY.set("ef14d5a269a9c30f5803bbc03cc2d235");
+		Utilities.sleep(100L, TimeUnit.MILLISECONDS);
 	}
 	
 	public void testClans() {
@@ -30,5 +35,9 @@ public class WargamingAPITest extends TestCase {
 	
 	public void testProvinceGeo() {
 		System.out.println(ProvinceGeoAPI.get("edson"));
+	}
+	
+	public void testClanBattles() {
+		System.out.println(ClanBattlesAPI.get(1000002392).getData().get(0));
 	}
 }
