@@ -46,7 +46,8 @@ public class WargamingConfig {
 		WARGAMING_API_KEY,
 		WARGAMING_API_ACCESS_TOKEN,
 		WARGAMING_API_LOG_LEVEL,
-		WARGAMING_API_LOG_VERBOSITY(Verbosity.PAYLOAD_TEXT);
+		WARGAMING_API_LOG_VERBOSITY(Verbosity.PAYLOAD_TEXT),
+		WARGAMING_API_REALM("na");
 		
 		private Object defVal;
 		
@@ -57,6 +58,14 @@ public class WargamingConfig {
 		public void set(String val) {
 			PropertiesKey.super.set(val);
 			WargamingClient.reset();
+		}
+		
+		public Level asLoggingLevel() {
+			try {
+				return Level.parse(get());
+			} catch (IllegalArgumentException | NullPointerException ex) {
+				return Level.FINE;
+			}
 		}
 	}
 	

@@ -26,5 +26,10 @@
 			<artifactId>eri-commons-rest-client</artifactId>
 			<version>0.4.4</version>
 		</dependency>
+		<dependency>
+			<groupId>de.grundid.opendatalab</groupId>
+			<artifactId>geojson-jackson</artifactId>
+			<version>1.8.1</version>
+		</dependency>
 	</dependencies>
 </project>

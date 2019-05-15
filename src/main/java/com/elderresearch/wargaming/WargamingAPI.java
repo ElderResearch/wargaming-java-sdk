@@ -5,6 +5,8 @@
 package com.elderresearch.wargaming;
 
 import static com.elderresearch.commons.rest.client.RecursiveTarget.target;
+import static com.elderresearch.wargaming.WargamingClient.client;
+import static com.elderresearch.wargaming.WargamingStaticClient.staticClient;
 
 import javax.ws.rs.client.Invocation;
 
@@ -14,12 +16,14 @@ import com.elderresearch.commons.rest.client.RecursiveTarget;
 import com.elderresearch.commons.rest.client.WebParam;
 import com.elderresearch.commons.rest.client.WebParam.WebParamGroup;
 import com.elderresearch.commons.rest.client.WebParam.WebQueryParam;
+import com.elderresearch.commons.rest.client.WebParam.WebTemplateParam;
 import com.elderresearch.wargaming.WargamingResponse.WithList;
 import com.elderresearch.wargaming.WargamingResponse.WithMap;
 import com.elderresearch.wargaming.WargamingResponse.WithMapOfLists;
 import com.elderresearch.wargaming.model.Clan;
 import com.elderresearch.wargaming.model.ClanDetails;
 import com.elderresearch.wargaming.model.PlayerVehicle;
+import com.elderresearch.wargaming.model.ProvinceGeo;
 import com.elderresearch.wargaming.model.Vehicle;
 
 import lombok.experimental.Accessors;
@@ -28,8 +32,6 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 @Accessors(fluent = true)
 public class WargamingAPI {
-	private WargamingClient client() { return WargamingClient.get(); }
-	
 	public Invocation.Builder request(String path, WebParam... params) {
 		return client().request(target(path), params);
 	}
@@ -118,7 +120,21 @@ public class WargamingAPI {
 		}
 	}
 	
+	@UtilityClass
+	public class ProvinceGeoAPI {
+		private final RecursiveTarget target = target("provinces_geojson/{alias}.json");
+		
+		public Invocation.Builder request(String alias, WebParam... params) {
+			return staticClient().request(target, ArrayUtils.add(params, WebTemplateParam.of("alias", alias)));
+		}
+		
+		public ProvinceGeo get(String alias, WebParam... params) {
+			return request(alias, params).get(ProvinceGeo.class);
+		}
+	}
+	
 	public void close() {
 		client().close();
+		staticClient().close();
 	}
 }

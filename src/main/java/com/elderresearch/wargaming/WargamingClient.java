@@ -27,7 +27,7 @@ import lombok.extern.java.Log;
 
 @Log
 public class WargamingClient extends RestClient {
-	private static final JacksonJsonProvider JSON_PROVIDER;
+	static final JacksonJsonProvider JSON_PROVIDER;
 	static {
 		// Mapping to APIs is not exhaustive in some cases- don't throw an error
 		val om = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -59,13 +59,7 @@ public class WargamingClient extends RestClient {
 	
 	@SuppressWarnings("resource")
 	private static final CachedSupplier<WargamingClient> INSTANCE = new CachedSupplier<>(() -> {
-		Level level;
-		try {
-			level = Level.parse(WargamingOption.WARGAMING_API_LOG_LEVEL.get());
-		} catch (IllegalArgumentException | NullPointerException ex) {
-			level = Level.FINE;
-		}
-		
+		val level       = WargamingOption.WARGAMING_API_LOG_LEVEL.asLoggingLevel();
 		val verbosity   = WargamingOption.WARGAMING_API_LOG_VERBOSITY.getEnum(Verbosity.class);
 		val apiURL      = WargamingOption.WARGAMING_API_URL.get();
 		val apiKey      = WargamingOption.WARGAMING_API_KEY.get();
@@ -79,7 +73,7 @@ public class WargamingClient extends RestClient {
 		INSTANCE.reset();
 	}
 	
-	public static WargamingClient get() {
+	public static WargamingClient client() {
 		return INSTANCE.get();
 	}
 }
