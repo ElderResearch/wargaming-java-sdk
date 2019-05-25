@@ -6,8 +6,6 @@ package com.elderresearch.wargaming;
 
 import static com.elderresearch.commons.rest.client.RecursiveTarget.target;
 import static com.elderresearch.commons.rest.client.WebParam.add;
-import static com.elderresearch.wargaming.WargamingClient.client;
-import static com.elderresearch.wargaming.WargamingStaticClient.staticClient;
 
 import javax.ws.rs.client.Invocation;
 
@@ -26,19 +24,20 @@ import com.elderresearch.wargaming.model.PlayerVehicle;
 import com.elderresearch.wargaming.model.ProvinceGeo;
 import com.elderresearch.wargaming.model.Vehicle;
 
-import lombok.experimental.Accessors;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-@Accessors(fluent = true)
 public class WorldOfTanksAPI {
-	private final RecursiveTarget target = target("wot");
+	private WargamingClient client = WargamingClient.client();
+	private WargamingStaticClient staticClient = WargamingStaticClient.client();
+	
+	private static final RecursiveTarget target = target("wot");
 	
 	public Invocation.Builder request(String path, WebParam... params) {
-		return client().request(target(path), params);
+		return client.request(target(path), params);
 	}
 	
-	public class PageParams extends WebParamGroup {
+	public static class PageParams extends WebParamGroup {
 		private PageParams(long pageNumber, long limit) {
 			super(WebQueryParam.of("page_no", pageNumber), WebQueryParam.of("limit", limit));
 		}
@@ -52,7 +51,7 @@ public class WorldOfTanksAPI {
 		private final RecursiveTarget clans = WorldOfTanksAPI.target.child("clans"), list = clans.child("list/");
 		
 		public Invocation.Builder request(WebParam... params) {
-			return client().request(list, params);
+			return client.request(list, params);
 		}
 		
 		public WithList<Clan> get(WebParam... params) {
@@ -65,7 +64,7 @@ public class WorldOfTanksAPI {
 		private final RecursiveTarget info = ClansAPI.clans.child("info/");
 		
 		public Invocation.Builder request(int id, WebParam... params) {
-			return client().request(info, add(params, WebQueryParam.of("clan_id", id)));
+			return client.request(info, add(params, WebQueryParam.of("clan_id", id)));
 		}
 		
 		public WithMap<ClanDetails> get(int id, WebParam... params) {
@@ -84,7 +83,7 @@ public class WorldOfTanksAPI {
 		private final RecursiveTarget vehicles = EncyclopediaAPI.encyclopedia.child("vehicles/");
 		
 		public Invocation.Builder request(WebParam... params) {
-			return client().request(vehicles, params);
+			return client.request(vehicles, params);
 		}
 		
 		public Invocation.Builder request(int tankId, WebParam... params) {
@@ -105,7 +104,7 @@ public class WorldOfTanksAPI {
 		private final RecursiveTarget account = WorldOfTanksAPI.target.child("account");
 		
 		public Invocation.Builder request(WebParam... params) {
-			return client().request(account, params);
+			return client.request(account, params);
 		}
 	}
 	
@@ -114,7 +113,7 @@ public class WorldOfTanksAPI {
 		private final RecursiveTarget tanks = PlayersAPI.account.child("tanks/");
 		
 		public Invocation.Builder request(int accountId, WebParam... params) {
-			return client().request(tanks, add(params, WebQueryParam.of("account_id", accountId)));
+			return client.request(tanks, add(params, WebQueryParam.of("account_id", accountId)));
 		}
 		
 		public WithMapOfLists<PlayerVehicle> get(int accountId, WebParam... params) {
@@ -127,7 +126,7 @@ public class WorldOfTanksAPI {
 		private final RecursiveTarget map = WorldOfTanksAPI.target.child("globalmap");
 		
 		public Invocation.Builder request(WebParam... params) {
-			return client().request(target, params);
+			return client.request(map, params);
 		}
 	}
 	
@@ -136,7 +135,7 @@ public class WorldOfTanksAPI {
 		private final RecursiveTarget battles = GlobalMapAPI.map.child("clanbattles/");
 		
 		public Invocation.Builder request(int clanId, WebParam... params) {
-			return client().request(battles, add(params, WebQueryParam.of("clan_id", clanId)));
+			return client.request(battles, add(params, WebQueryParam.of("clan_id", clanId)));
 		}
 		
 		public WithList<ClanBattle> get(int clanId, WebParam... params) {
@@ -149,7 +148,7 @@ public class WorldOfTanksAPI {
 		private final RecursiveTarget provinces = target("provinces_geojson/{alias}.json");
 		
 		public Invocation.Builder request(String alias, WebParam... params) {
-			return staticClient().request(provinces, add(params, WebTemplateParam.of("alias", alias)));
+			return staticClient.request(provinces, add(params, WebTemplateParam.of("alias", alias)));
 		}
 		
 		public ProvinceGeo get(String alias, WebParam... params) {
@@ -158,7 +157,7 @@ public class WorldOfTanksAPI {
 	}
 	
 	public void close() {
-		client().close();
-		staticClient().close();
+		client.close();
+		staticClient.close();
 	}
 }
