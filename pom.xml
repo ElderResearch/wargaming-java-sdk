@@ -1,30 +1,73 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<parent>
-		<groupId>com.elderresearch</groupId>
-		<artifactId>eri-maven-base</artifactId>
-		<version>3.5.0</version>
-	</parent>
-
-	<groupId>com.elderresearch.apis</groupId>
-	<artifactId>eri-wargaming-api</artifactId>
+	<groupId>com.github.ElderResearch</groupId>
+	<artifactId>wargaming-java-sdk</artifactId>
 	<name>ERI Wargaming.net API</name>
 	<description>Java SDK for Wargaming.net API</description>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 
-	<scm>
-		<developerConnection>scm:git:https://${scm}/eri-api/eri-wargaming-api.git</developerConnection>
-		<connection>scm:git:http://${scm}/eri-api/eri-wargaming-api.git</connection>
-		<url>http://${scm}/summary/eri-api%2Feri-wargaming-api.git</url>
-		<tag>HEAD</tag>
-	</scm>
+    <properties>
+        <jersey.version>2.25.1</jersey.version>
+        <lombok.version>1.18.6</lombok.version>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
 	<dependencies>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 		<dependency>
-			<groupId>com.elderresearch.commons</groupId>
-			<artifactId>eri-commons-rest-client</artifactId>
-			<version>0.4.4</version>
+			<groupId>de.grundid.opendatalab</groupId>
+			<artifactId>geojson-jackson</artifactId>
+			<version>1.8.1</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.11.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jul</artifactId>
+            <version>2.9.0</version>        
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>2.9.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jool</artifactId>
+            <version>0.9.12</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 </project>

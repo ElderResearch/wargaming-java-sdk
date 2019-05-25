@@ -4,77 +4,61 @@
  *******************************************************************************/
 package com.elderresearch.wargaming;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 
-import com.elderresearch.commons.lang.CachedSupplier;
-import com.elderresearch.commons.lang.CachedSupplier.Result;
-import com.elderresearch.commons.lang.PropertiesKey;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.val;
-import lombok.experimental.Accessors;
-import lombok.experimental.UtilityClass;
-import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 
 /**
- * Configuration for the Wargaming client. See {@link WargamingOption} for the available configuration keys. There are
- * four ways of setting these keys:<ol>
- * <li>Using a .properties file named <tt>wargaming.properties</tt> in the current directory</li>
- * <li>Using a .properties file at a path/location you specify via {@link #setConfigFile(String)}</li>
- * <li>Using system properties (e.g. <tt>-Dwargaming_api_key=mykey</tt>)</li>
- * <li>Using environment variables (e.g. <tt>WARGAMING_API_KEY=mykey</tt>)</li>
- * </ol>
+ * Configuration for the Wargaming client.
  * 
  * @author <a href="mailto:dimeo@elderresearch.com">John Dimeo</a>
  * @since Apr 9, 2019
  */
-@Log
-@UtilityClass
+@Log4j2
+@Getter
 public class WargamingConfig {
-	@NoArgsConstructor
-	@AllArgsConstructor
-	@Getter
-	@Accessors(fluent = true)
-	public enum WargamingOption implements PropertiesKey {
-		WARGAMING_API_URL("https://api.worldoftanks.com/wot/"),
-		WARGAMING_API_KEY,
-		WARGAMING_API_ACCESS_TOKEN,
-		WARGAMING_API_LOG_LEVEL,
-		WARGAMING_API_LOG_VERBOSITY(Verbosity.PAYLOAD_TEXT);
-		
-		private Object defVal;
-		
-		@Override
-		public Properties props() { return PROPS.get(); }
-		
-		@Override
-		public void set(String val) {
-			PropertiesKey.super.set(val);
-			WargamingClient.reset();
+	private static final ObjectMapper MAPPER = new YAMLMapper()
+		.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+		.addMixIn(Level.class, LevelMixin.class);
+
+	public interface LevelMixin {
+		@JsonCreator public static Level parse(String s) {
+			// Not actually called - Jackson calls Level.parse directly
+			return null;
 		}
 	}
 	
-	private String configFile = "wargaming.properties";
+	private String url = "https://api.worldoftanks.com/";
+	private String applicationId, accessToken, realm = "na";
+	private Level logLevel = Level.FINE;
+	private Verbosity logVerbosity = Verbosity.PAYLOAD_TEXT;
 	
-	public void setConfigFile(String file) {
-		configFile = file;
-		PROPS.reset();
-		WargamingClient.reset();
-	}
+	private Map<String, Object> userConfig;
 	
-	private final CachedSupplier<Properties> PROPS = new CachedSupplier<>(() -> {
-		val ret = new Properties();
+	public static WargamingConfig load(File file) {
 		try {
-			PropertiesKey.load(ret, configFile, WargamingOption.values());
+			return MAPPER.readValue(file, WargamingConfig.class);
 		} catch (IOException e) {
-			log.log(Level.WARNING, "Error loading Wargaming configuration from " + configFile, e);
+			log.warn("Error loading config from {}. Using defaults.", file, e);
+			return new WargamingConfig();
 		}
-		return Result.completed(ret);
-	});
+	}
+	
+	@Getter(lazy = true)
+	private static final WargamingConfig config = newConfig();
+	
+	private static WargamingConfig newConfig() {
+		return load(new File("wargaming.yaml"));
+	}
 }
