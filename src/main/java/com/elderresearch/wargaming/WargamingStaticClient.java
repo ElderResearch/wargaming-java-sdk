@@ -9,16 +9,16 @@ import java.util.logging.Level;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 
-import com.elderresearch.commons.lang.CachedSupplier;
-import com.elderresearch.commons.lang.CachedSupplier.Result;
 import com.elderresearch.commons.rest.client.RestClient;
 import com.elderresearch.commons.rest.client.WebParam.WebTemplateParam;
-import com.elderresearch.wargaming.WargamingConfig.WargamingOption;
 
+import lombok.Getter;
 import lombok.val;
+import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 
 @Log
+@Accessors(fluent = true)
 public class WargamingStaticClient extends RestClient {
 	private static final String BASE = "https://cwxstatic-{realm}.wargaming.net/v25/";
 	
@@ -30,21 +30,11 @@ public class WargamingStaticClient extends RestClient {
 		setPerpetualParams(WebTemplateParam.of("realm", realm));
 	}
 	
-	@SuppressWarnings("resource")
-	private static final CachedSupplier<WargamingStaticClient> INSTANCE = new CachedSupplier<>(() -> {
-		val level       = WargamingOption.WARGAMING_API_LOG_LEVEL.asLoggingLevel();
-		val verbosity   = WargamingOption.WARGAMING_API_LOG_VERBOSITY.getEnum(Verbosity.class);
-		val realm       = WargamingOption.WARGAMING_API_REALM.get();
-		
-		return Result.completed(new WargamingStaticClient(level, verbosity, realm));
-	});
-
-	static void reset() {
-		INSTANCE.get().close();
-		INSTANCE.reset();
-	}
+	@Getter(lazy = true)
+	private static final WargamingStaticClient staticClient = newClient();
 	
-	public static WargamingStaticClient staticClient() {
-		return INSTANCE.get();
+	private static WargamingStaticClient newClient() {
+		val c = WargamingConfig.getConfig();
+		return new WargamingStaticClient(c.getLogLevel(), c.getLogVerbosity(), c.getRealm());
 	}
 }

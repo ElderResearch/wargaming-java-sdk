@@ -10,11 +10,8 @@ import java.util.logging.Level;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 
-import com.elderresearch.commons.lang.CachedSupplier;
-import com.elderresearch.commons.lang.CachedSupplier.Result;
 import com.elderresearch.commons.rest.client.RestClient;
 import com.elderresearch.commons.rest.client.WebParam.WebQueryParam;
-import com.elderresearch.wargaming.WargamingConfig.WargamingOption;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,10 +19,13 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
+import lombok.Getter;
 import lombok.val;
+import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
 
 @Log
+@Accessors(fluent = true)
 public class WargamingClient extends RestClient {
 	static final JacksonJsonProvider JSON_PROVIDER;
 	static {
@@ -46,34 +46,22 @@ public class WargamingClient extends RestClient {
 		JSON_PROVIDER.setMapper(om);
 	}
 	
-	WargamingClient(Level level, Verbosity verbosity, String baseURL, String apiKey, String accessToken) {
+	WargamingClient(Level level, Verbosity verbosity, String baseURL, String appId, String accessToken) {
 		super(builderWithFeatures(new LoggingFeature(log, level, verbosity, LoggingFeature.DEFAULT_MAX_ENTITY_SIZE))
 			.register(JSON_PROVIDER));
 		
 		setBase(baseURL);
 		setPerpetualParams(
-			WebQueryParam.of("application_id", apiKey),
+			WebQueryParam.of("application_id", appId),
 			WebQueryParam.of("access_token", accessToken)
 		);
 	}
 	
-	@SuppressWarnings("resource")
-	private static final CachedSupplier<WargamingClient> INSTANCE = new CachedSupplier<>(() -> {
-		val level       = WargamingOption.WARGAMING_API_LOG_LEVEL.asLoggingLevel();
-		val verbosity   = WargamingOption.WARGAMING_API_LOG_VERBOSITY.getEnum(Verbosity.class);
-		val apiURL      = WargamingOption.WARGAMING_API_URL.get();
-		val apiKey      = WargamingOption.WARGAMING_API_KEY.get();
-		val accessToken = WargamingOption.WARGAMING_API_ACCESS_TOKEN.get(); 
-		
-		return Result.completed(new WargamingClient(level, verbosity, apiURL, apiKey, accessToken));
-	});
-
-	static void reset() {
-		INSTANCE.get().close();
-		INSTANCE.reset();
-	}
+	@Getter(lazy = true)
+	private static final WargamingClient client = newClient();
 	
-	public static WargamingClient client() {
-		return INSTANCE.get();
+	private static WargamingClient newClient() {
+		val c = WargamingConfig.getConfig();
+		return new WargamingClient(c.getLogLevel(), c.getLogVerbosity(), c.getUrl(), c.getApplicationId(), c.getAccessToken());
 	}
 }
