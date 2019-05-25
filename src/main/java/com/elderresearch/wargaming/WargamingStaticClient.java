@@ -31,7 +31,7 @@ public class WargamingStaticClient extends RestClient {
 	}
 	
 	@Getter(lazy = true)
-	private static final WargamingStaticClient staticClient = newClient();
+	private static final WargamingStaticClient client = newClient();
 	
 	private static WargamingStaticClient newClient() {
 		val c = WargamingConfig.getConfig();
