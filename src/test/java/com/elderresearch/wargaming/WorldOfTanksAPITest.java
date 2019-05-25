@@ -1,5 +1,7 @@
 package com.elderresearch.wargaming;
 
+import org.junit.Ignore;
+
 import com.elderresearch.wargaming.WorldOfTanksAPI.ClanAPI;
 import com.elderresearch.wargaming.WorldOfTanksAPI.ClanBattlesAPI;
 import com.elderresearch.wargaming.WorldOfTanksAPI.ClansAPI;
@@ -19,6 +21,7 @@ public class WorldOfTanksAPITest extends TestCase {
 		System.out.println(ClansAPI.get(PageParams.of(1, 5)).getData().get(0));
 	}
 	
+	@Ignore("Requires access token")
 	public void testClanDetails() {
 		int id = 1000008386;
 		System.out.println(ClanAPI.get(id).getData().get(String.valueOf(id)));
@@ -32,6 +35,7 @@ public class WorldOfTanksAPITest extends TestCase {
 		System.out.println(ProvinceGeoAPI.get("edson"));
 	}
 	
+	@Ignore("Requires access token and this clan may not have a current battle")
 	public void testClanBattles() {
 		System.out.println(ClanBattlesAPI.get(1000002392).getData().get(0));
 	}
