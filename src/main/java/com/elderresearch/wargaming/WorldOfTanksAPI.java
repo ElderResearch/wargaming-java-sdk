@@ -44,7 +44,7 @@ public class WorldOfTanksAPI implements AutoCloseable {
 	@Getter private ClanBattlesAPI clanBattles;
 	@Getter private ProvinceGeoAPI provinceGeo;
 	
-	public WorldOfTanksAPI(WargamingConfig config) {
+	WorldOfTanksAPI(WargamingConfig config) {
 		client         = new WargamingClient(config);
 		clan           = new ClanAPI(client);
 		clans          = new ClansAPI(client);

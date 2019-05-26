@@ -1,18 +1,32 @@
 package com.elderresearch.wargaming;
 
-import org.junit.Before;
+import java.util.logging.Level;
+
+import org.junit.AfterClass;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.elderresearch.wargaming.WorldOfTanksAPI.PageParams;
 
+import lombok.val;
+
 public class WorldOfTanksAPITest {
-	private WorldOfTanksAPI wot;
+	private static WorldOfTanksAPI wot;
 	
-	@Before
-	public void setUp() throws InterruptedException {
+	@BeforeClass
+	public static void setUp() throws InterruptedException {
+		val appId = System.getenv("wot_application_id");
+		Assume.assumeTrue("You must specify environment variable wot_applicaton_id to run these tests", appId != null);
+		
 		Thread.sleep(100L);
-		wot = new WorldOfTanksAPI(new WargamingConfig());
+		wot = WargamingConfig.builder().applicationId(appId).logLevel(Level.INFO).build().wot();
+	}
+	
+	@AfterClass
+	public static void tearDown() {
+		if (wot != null) { wot.close(); }
 	}
 	
 	@Test

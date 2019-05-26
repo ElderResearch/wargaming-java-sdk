@@ -13,7 +13,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * Configuration for the Wargaming client.
@@ -22,6 +26,7 @@ import lombok.Getter;
  * @since Apr 9, 2019
  */
 @Getter
+@Builder @NoArgsConstructor @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class WargamingConfig {
 	@Getter
 	private static final ObjectMapper mapper = new YAMLMapper()
@@ -35,8 +40,14 @@ public class WargamingConfig {
 		}
 	}
 	
-	private String url = "https://api.worldoftanks.com/";
-	private String applicationId, accessToken, realm = "na";
+	private String applicationId, accessToken;
+	
+	@Builder.Default
+	private String url = "https://api.worldoftanks.com/", realm = "na";
+	@Builder.Default
 	private Level logLevel = Level.FINE;
+	@Builder.Default
 	private Verbosity logVerbosity = Verbosity.PAYLOAD_TEXT;
+	
+	public WorldOfTanksAPI wot() { return new WorldOfTanksAPI(this); }
 }
