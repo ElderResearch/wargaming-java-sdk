@@ -4,44 +4,42 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.elderresearch.wargaming.WorldOfTanksAPI.ClanAPI;
-import com.elderresearch.wargaming.WorldOfTanksAPI.ClanBattlesAPI;
-import com.elderresearch.wargaming.WorldOfTanksAPI.ClansAPI;
 import com.elderresearch.wargaming.WorldOfTanksAPI.PageParams;
-import com.elderresearch.wargaming.WorldOfTanksAPI.ProvinceGeoAPI;
-import com.elderresearch.wargaming.WorldOfTanksAPI.VehiclesAPI;
 
 public class WorldOfTanksAPITest {
+	private WorldOfTanksAPI wot;
+	
 	@Before
 	public void setUp() throws InterruptedException {
 		Thread.sleep(100L);
+		wot = new WorldOfTanksAPI(new WargamingConfig());
 	}
 	
 	@Test
 	public void testClans() {
-		System.out.println(ClansAPI.get(PageParams.of(1, 5)).getData().get(0));
+		System.out.println(wot.clans().get(PageParams.of(1, 5)).getData().get(0));
 	}
 	
 	@Test
 	@Ignore("Requires access token")
 	public void testClanDetails() {
 		int id = 1000008386;
-		System.out.println(ClanAPI.get(id).getData().get(String.valueOf(id)));
+		System.out.println(wot.clan().get(id).getData().get(String.valueOf(id)));
 	}
 	
 	@Test
 	public void testVehicles() {
-		System.out.println(VehiclesAPI.get(PageParams.of(1, 5)).getData().get("1"));
+		System.out.println(wot.vehicles().get(PageParams.of(1, 5)).getData().get("1"));
 	}
 	
 	@Test
 	public void testProvinceGeo() {
-		System.out.println(ProvinceGeoAPI.get("edson"));
+		System.out.println(wot.provinceGeo().get("edson"));
 	}
 	
 	@Test
 	@Ignore("Requires access token and this clan may not have a current battle")
 	public void testClanBattles() {
-		System.out.println(ClanBattlesAPI.get(1000002392).getData().get(0));
+		System.out.println(wot.clanBattles().get(1000002392).getData().get(0));
 	}
 }

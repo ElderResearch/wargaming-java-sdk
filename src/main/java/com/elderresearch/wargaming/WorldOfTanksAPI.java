@@ -10,6 +10,8 @@ import static com.elderresearch.commons.rest.client.WebParam.add;
 import javax.ws.rs.client.Invocation;
 
 import com.elderresearch.commons.rest.client.RecursiveTarget;
+import com.elderresearch.commons.rest.client.RestClient;
+import com.elderresearch.commons.rest.client.RestEndpoint;
 import com.elderresearch.commons.rest.client.WebParam;
 import com.elderresearch.commons.rest.client.WebParam.WebParamGroup;
 import com.elderresearch.commons.rest.client.WebParam.WebQueryParam;
@@ -24,12 +26,37 @@ import com.elderresearch.wargaming.model.PlayerVehicle;
 import com.elderresearch.wargaming.model.ProvinceGeo;
 import com.elderresearch.wargaming.model.Vehicle;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class WorldOfTanksAPI {
-	private WargamingClient client = WargamingClient.client();
-	private WargamingStaticClient staticClient = WargamingStaticClient.client();
+@Accessors(fluent = true)
+public class WorldOfTanksAPI implements AutoCloseable {
+	private WargamingClient client;
+	private WargamingStaticClient staticClient;
+	
+	@Getter private ClanAPI clan;
+	@Getter private ClansAPI clans;
+	@Getter private VehiclesAPI vehicles;
+	@Getter private PlayersAPI players;
+	@Getter private PlayerVehiclesAPI playerVehicles;
+	@Getter private GlobalMapAPI globalMap;
+	@Getter private ClanBattlesAPI clanBattles;
+	@Getter private ProvinceGeoAPI provinceGeo;
+	
+	public WorldOfTanksAPI(WargamingConfig config) {
+		client         = new WargamingClient(config);
+		clan           = new ClanAPI(client);
+		clans          = new ClansAPI(client);
+		vehicles       = new VehiclesAPI(client);
+		players        = new PlayersAPI(client);
+		playerVehicles = new PlayerVehiclesAPI(client);
+		globalMap      = new GlobalMapAPI(client);
+		clanBattles    = new ClanBattlesAPI(client);
+		
+		staticClient   = new WargamingStaticClient(config);
+		provinceGeo    = new ProvinceGeoAPI(staticClient);
+	}
 	
 	private static final RecursiveTarget target = target("wot");
 	
@@ -46,47 +73,41 @@ public class WorldOfTanksAPI {
 		}
 	}
 	
-	@UtilityClass
-	public class ClansAPI {
-		private final RecursiveTarget clans = WorldOfTanksAPI.target.child("clans"), list = clans.child("list/");
+	public static class ClansAPI extends RestEndpoint {
+		private static final RecursiveTarget clans = target.child("clans"), list = clans.child("list/");
 		
-		public Invocation.Builder request(WebParam... params) {
-			return client.request(list, params);
-		}
+		ClansAPI(RestClient client) { super(client, list); }
 		
 		public WithList<Clan> get(WebParam... params) {
 			return request(params).get(WithList.forType(Clan.class));
 		}
 	}
 	
-	@UtilityClass
-	public class ClanAPI {
-		private final RecursiveTarget info = ClansAPI.clans.child("info/");
+	public static class ClanAPI extends RestEndpoint {
+		private static final RecursiveTarget info = ClansAPI.clans.child("info/");
 		
-		public Invocation.Builder request(int id, WebParam... params) {
-			return client.request(info, add(params, WebQueryParam.of("clan_id", id)));
+		ClanAPI(RestClient client) { super(client, info); }
+		
+		public Invocation.Builder requestFor(int id, WebParam... params) {
+			return super.request(add(params, WebQueryParam.of("clan_id", id)));
 		}
 		
 		public WithMap<ClanDetails> get(int id, WebParam... params) {
-			return request(id, params).get(WithMap.forType(ClanDetails.class));
+			return requestFor(id, params).get(WithMap.forType(ClanDetails.class));
 		}
 	}
 	
 	@UtilityClass
 	protected class EncyclopediaAPI {
-		private final RecursiveTarget encyclopedia = WorldOfTanksAPI.target.child("encyclopedia");
+		private final RecursiveTarget encyclopedia = target.child("encyclopedia");
 	}
 	
-	
-	@UtilityClass
-	public class VehiclesAPI {
-		private final RecursiveTarget vehicles = EncyclopediaAPI.encyclopedia.child("vehicles/");
+	public static class VehiclesAPI extends RestEndpoint {
+		private static final RecursiveTarget vehicles = EncyclopediaAPI.encyclopedia.child("vehicles/");
 		
-		public Invocation.Builder request(WebParam... params) {
-			return client.request(vehicles, params);
-		}
+		VehiclesAPI(RestClient client) { super(client, vehicles); }
 		
-		public Invocation.Builder request(int tankId, WebParam... params) {
+		public Invocation.Builder requestFor(int tankId, WebParam... params) {
 			return request(add(params, WebQueryParam.of("tank_id", tankId)));
 		}
 		
@@ -95,67 +116,65 @@ public class WorldOfTanksAPI {
 		}
 		
 		public WithMap<Vehicle> get(int tankId, WebParam... params) {
-			return request(tankId, params).get(WithMap.forType(Vehicle.class));
+			return requestFor(tankId, params).get(WithMap.forType(Vehicle.class));
 		}
 	}
 	
-	@UtilityClass
-	public class PlayersAPI {
-		private final RecursiveTarget account = WorldOfTanksAPI.target.child("account");
+	public static class PlayersAPI extends RestEndpoint {
+		private static final RecursiveTarget account = target.child("account");
 		
-		public Invocation.Builder request(WebParam... params) {
-			return client.request(account, params);
-		}
+		PlayersAPI(RestClient client) { super(client, account); }
 	}
 	
-	@UtilityClass
-	public class PlayerVehiclesAPI {
-		private final RecursiveTarget tanks = PlayersAPI.account.child("tanks/");
+	public static class PlayerVehiclesAPI extends RestEndpoint {
+		private static final RecursiveTarget tanks = PlayersAPI.account.child("tanks/");
 		
-		public Invocation.Builder request(int accountId, WebParam... params) {
-			return client.request(tanks, add(params, WebQueryParam.of("account_id", accountId)));
+		PlayerVehiclesAPI(RestClient client) { super(client, tanks); }
+		
+		public Invocation.Builder requestFor(int accountId, WebParam... params) {
+			return request(add(params, WebQueryParam.of("account_id", accountId)));
 		}
 		
 		public WithMapOfLists<PlayerVehicle> get(int accountId, WebParam... params) {
-			return request(accountId, params).get(WithMapOfLists.forType(PlayerVehicle.class));
+			return requestFor(accountId, params).get(WithMapOfLists.forType(PlayerVehicle.class));
 		}
 	}
 	
-	@UtilityClass
-	public class GlobalMapAPI {
-		private final RecursiveTarget map = WorldOfTanksAPI.target.child("globalmap");
+	public static class GlobalMapAPI extends RestEndpoint {
+		private static final RecursiveTarget map = target.child("globalmap");
 		
-		public Invocation.Builder request(WebParam... params) {
-			return client.request(map, params);
-		}
+		GlobalMapAPI(RestClient client) { super(client, map); }
 	}
 	
-	@UtilityClass
-	public class ClanBattlesAPI {
-		private final RecursiveTarget battles = GlobalMapAPI.map.child("clanbattles/");
+	public static class ClanBattlesAPI extends RestEndpoint {
+		private static final RecursiveTarget battles = GlobalMapAPI.map.child("clanbattles/");
 		
-		public Invocation.Builder request(int clanId, WebParam... params) {
-			return client.request(battles, add(params, WebQueryParam.of("clan_id", clanId)));
+		ClanBattlesAPI(RestClient client) { super(client, battles); }
+		
+		public Invocation.Builder requestFor(int clanId, WebParam... params) {
+			return request(add(params, WebQueryParam.of("clan_id", clanId)));
 		}
 		
 		public WithList<ClanBattle> get(int clanId, WebParam... params) {
-			return request(clanId, params).get(WithList.forType(ClanBattle.class));
+			return requestFor(clanId, params).get(WithList.forType(ClanBattle.class));
 		}
 	}
 	
-	@UtilityClass
-	public class ProvinceGeoAPI {
-		private final RecursiveTarget provinces = target("provinces_geojson/{alias}.json");
+	public static class ProvinceGeoAPI extends RestEndpoint {
+		private static final RecursiveTarget provinces = target("provinces_geojson/{alias}.json");
 		
-		public Invocation.Builder request(String alias, WebParam... params) {
-			return staticClient.request(provinces, add(params, WebTemplateParam.of("alias", alias)));
+		ProvinceGeoAPI(RestClient client) { super(client, provinces); }
+		
+		public Invocation.Builder requestFor(String alias, WebParam... params) {
+			return request(add(params, WebTemplateParam.of("alias", alias)));
 		}
 		
 		public ProvinceGeo get(String alias, WebParam... params) {
-			return request(alias, params).get(ProvinceGeo.class);
+			return requestFor(alias, params).get(ProvinceGeo.class);
 		}
 	}
 	
+	@Override
 	public void close() {
 		client.close();
 		staticClient.close();
