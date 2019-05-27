@@ -28,7 +28,6 @@ import com.elderresearch.wargaming.model.Vehicle;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import lombok.experimental.UtilityClass;
 
 @Accessors(fluent = true)
 public class WorldOfTanksAPI implements AutoCloseable {
