@@ -21,7 +21,7 @@ public class WorldOfTanksAPITest {
 		Assume.assumeTrue("You must specify environment variable wot_applicaton_id to run these tests", appId != null);
 		
 		Thread.sleep(100L);
-		wot = WargamingConfig.builder().applicationId(appId).logLevel(Level.INFO).build().wot();
+		wot = new WargamingConfig().setApplicationId(appId).setLogLevel(Level.INFO).wot();
 	}
 	
 	@AfterClass
@@ -38,7 +38,7 @@ public class WorldOfTanksAPITest {
 	@Ignore("Requires access token")
 	public void testClanDetails() {
 		int id = 1000008386;
-		System.out.println(wot.clan().get(id).getData().get(String.valueOf(id)));
+		System.out.println(wot.clans().clan().get(id).getData().get(String.valueOf(id)));
 	}
 	
 	@Test
@@ -54,6 +54,6 @@ public class WorldOfTanksAPITest {
 	@Test
 	@Ignore("Requires access token and this clan may not have a current battle")
 	public void testClanBattles() {
-		System.out.println(wot.clanBattles().get(1000002392).getData().get(0));
+		System.out.println(wot.globalMap().clanBattles().get(1000002392).getData().get(0));
 	}
 }
