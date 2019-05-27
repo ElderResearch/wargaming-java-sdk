@@ -19,7 +19,6 @@ import com.elderresearch.commons.rest.client.WebParam.WebTemplateParam;
 import com.elderresearch.wargaming.WargamingResponse.WithList;
 import com.elderresearch.wargaming.WargamingResponse.WithMap;
 import com.elderresearch.wargaming.WargamingResponse.WithMapOfLists;
-import com.elderresearch.wargaming.WorldOfTanksAPI.EncyclopediaAPI.VehiclesAPI;
 import com.elderresearch.wargaming.model.Clan;
 import com.elderresearch.wargaming.model.ClanBattle;
 import com.elderresearch.wargaming.model.ClanDetails;
@@ -97,29 +96,23 @@ public class WorldOfTanksAPI implements AutoCloseable {
 		}
 	}
 	
-	@UtilityClass
-	protected class EncyclopediaAPI {
-		private final RecursiveTarget encyclopedia = target.child("encyclopedia");
+	public static class VehiclesAPI extends RestEndpoint {
+		private static final RecursiveTarget encyclopedia = target.child("encyclopedia"), vehicles = encyclopedia.child("vehicles/");
 		
-		public static class VehiclesAPI extends RestEndpoint {
-			private static final RecursiveTarget vehicles = encyclopedia.child("vehicles/");
-			
-			VehiclesAPI(RestClient client) { super(client, vehicles); }
-			
-			public Invocation.Builder requestFor(int tankId, WebParam... params) {
-				return request(add(params, WebQueryParam.of("tank_id", tankId)));
-			}
-			
-			public WithMap<Vehicle> get(WebParam... params) {
-				return request(params).get(WithMap.forType(Vehicle.class));
-			}
-			
-			public WithMap<Vehicle> get(int tankId, WebParam... params) {
-				return requestFor(tankId, params).get(WithMap.forType(Vehicle.class));
-			}
+		VehiclesAPI(RestClient client) { super(client, vehicles); }
+		
+		public Invocation.Builder requestFor(int tankId, WebParam... params) {
+			return request(add(params, WebQueryParam.of("tank_id", tankId)));
+		}
+		
+		public WithMap<Vehicle> get(WebParam... params) {
+			return request(params).get(WithMap.forType(Vehicle.class));
+		}
+		
+		public WithMap<Vehicle> get(int tankId, WebParam... params) {
+			return requestFor(tankId, params).get(WithMap.forType(Vehicle.class));
 		}
 	}
-	
 	
 	public static class PlayersAPI extends RestEndpoint {
 		private static final RecursiveTarget account = target.child("account");
