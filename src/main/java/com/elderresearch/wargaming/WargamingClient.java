@@ -5,10 +5,8 @@
 package com.elderresearch.wargaming;
 
 import java.util.TimeZone;
-import java.util.logging.Level;
 
 import org.glassfish.jersey.logging.LoggingFeature;
-import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 
 import com.elderresearch.commons.rest.client.RestClient;
 import com.elderresearch.commons.rest.client.WebParam.WebQueryParam;
@@ -19,7 +17,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
-import lombok.Getter;
 import lombok.val;
 import lombok.experimental.Accessors;
 import lombok.extern.java.Log;
@@ -46,22 +43,14 @@ public class WargamingClient extends RestClient {
 		JSON_PROVIDER.setMapper(om);
 	}
 	
-	WargamingClient(Level level, Verbosity verbosity, String baseURL, String appId, String accessToken) {
-		super(builderWithFeatures(new LoggingFeature(log, level, verbosity, LoggingFeature.DEFAULT_MAX_ENTITY_SIZE))
+	WargamingClient(WargamingConfig config) {
+		super(builderWithFeatures(new LoggingFeature(log, config.getLogLevel(), config.getLogVerbosity(), LoggingFeature.DEFAULT_MAX_ENTITY_SIZE))
 			.register(JSON_PROVIDER));
 		
-		setBase(baseURL);
+		setBase(config.getUrl());
 		setPerpetualParams(
-			WebQueryParam.of("application_id", appId),
-			WebQueryParam.of("access_token", accessToken)
+			WebQueryParam.of("application_id", config.getApplicationId()),
+			WebQueryParam.of("access_token", config.getAccessToken())
 		);
-	}
-	
-	@Getter(lazy = true)
-	private static final WargamingClient client = newClient();
-	
-	private static WargamingClient newClient() {
-		val c = WargamingConfig.getConfig();
-		return new WargamingClient(c.getLogLevel(), c.getLogVerbosity(), c.getUrl(), c.getApplicationId(), c.getAccessToken());
 	}
 }
